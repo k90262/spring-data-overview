@@ -54,6 +54,33 @@ public class DerivedQueryTests {
     assertThat(flightsToLondonToParis).hasSize(1).first().isEqualToComparingFieldByField(flight1);
   }
 
+  @Test
+  public void shouldFindFlightsFromLondonOrMardrid() {
+    final Flight flight1 = createFlight("London", "New York");
+    final Flight flight2 = createFlight("Tokyo", "New York");
+    final Flight flight3 = createFlight("Madrid", "New York");
+
+    flightRepository.save(flight1);
+    flightRepository.save(flight2);
+    flightRepository.save(flight3);
+
+    List<Flight> londonOrMadrid = flightRepository.findByOriginIn("London", "Madrid");
+
+    assertThat(londonOrMadrid).hasSize(2);
+    assertThat(londonOrMadrid.get(0)).isEqualToComparingFieldByField(flight1);
+    assertThat(londonOrMadrid.get(1)).isEqualToComparingFieldByField(flight3);
+  }
+
+  @Test
+  public void shouldFindFlightsFromLondonIgnoringCase() {
+    final Flight flight = createFlight("LONDON");
+    flightRepository.save(flight);
+
+    List<Flight> flightsFromLondon = flightRepository.findByOriginIgnoreCase("london");
+
+    assertThat(flightsFromLondon).hasSize(1).first().isEqualToComparingFieldByField(flight);
+  }
+
   private Flight createFlight(String origin, String destination) {
     final Flight flight = new Flight();
     flight.setOrigin(origin);
